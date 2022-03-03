@@ -1,6 +1,6 @@
 # terraform-oci-arch-magento
 
-This is Terraform module that deploys [Magento](https://business.adobe.com/products/magento/open-source.html) on [Oracle Cloud Infrastructure (OCI)](https://cloud.oracle.com/en_US/cloud-infrastructure).
+This is Terraform module that deploys [Magento Open Source](https://business.adobe.com/products/magento/open-source.html) on [Oracle Cloud Infrastructure (OCI)](https://cloud.oracle.com/en_US/cloud-infrastructure).
 
 ## About
 Magento Open Source delivers all the basic ecommerce capabilities and allows you to build a unique online store from the ground up.
