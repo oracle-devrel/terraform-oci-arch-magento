@@ -77,7 +77,7 @@ variable "use_bastion_service" {
 }
 
 variable "bastion_shape" {
-  default = "VM.Standard.E3.Flex"
+  default = "VM.Standard.E4.Flex"
 }
 
 variable "bastion_flex_shape_ocpus" {
