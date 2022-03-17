@@ -10,6 +10,11 @@ output "generated_ssh_private_key" {
   sensitive = true
 }
 
+output "generated_ssh_public_key" {
+  value     = module.magento.generated_ssh_public_key
+  sensitive = true
+}
+
 output "magento_name" {
   value = var.magento_name
 }

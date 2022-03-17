@@ -26,6 +26,11 @@ output "generated_ssh_private_key" {
   sensitive = true
 }
 
+output "generated_ssh_public_key" {
+  value     = tls_private_key.public_private_key_pair.public_key_openssh
+  sensitive = true
+}
+
 output "bastion_ssh_metadata" {
   value = concat(oci_bastion_session.ssh_via_bastion_service.*.ssh_metadata, oci_bastion_session.ssh_via_bastion_service2plus.*.ssh_metadata)
 }
