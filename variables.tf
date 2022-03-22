@@ -101,6 +101,22 @@ variable "bastion_flex_shape_memory" {
   default = 1
 }
 
+variable "inject_bastion_service_id" {
+  default = false
+}
+
+variable "bastion_service_id" {
+  default = ""
+}
+
+variable "inject_bastion_server_public_ip" {
+  default = false
+}
+
+variable "bastion_server_public_ip" {
+  default = ""
+}
+
 variable "use_shared_storage" {
   description = "Decide if you want to use shared NFS on OCI FSS"
   default     = true

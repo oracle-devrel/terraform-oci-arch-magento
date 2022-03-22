@@ -367,7 +367,7 @@ data "template_file" "install_magento" {
 }
 
 resource "oci_core_instance" "bastion_instance" {
-  count               = var.numberOfNodes > 1 && !var.use_bastion_service ? 1 : 0
+  count               = (var.numberOfNodes > 1 && !var.use_bastion_service && !var.inject_bastion_server_public_ip) ? 1 : 0
   availability_domain = var.availability_domain_name == "" ? data.oci_identity_availability_domains.ADs.availability_domains[0]["name"] : var.availability_domain_name
   compartment_id      = var.compartment_ocid
   display_name        = "${var.label_prefix}BastionVM"
@@ -402,11 +402,10 @@ resource "oci_core_instance" "bastion_instance" {
 
 
 resource "oci_bastion_bastion" "bastion-service" {
-  count            = var.numberOfNodes > 1 && var.use_bastion_service ? 1 : 0
+  count            = (var.numberOfNodes > 1 && var.use_bastion_service && !var.inject_bastion_service_id) ? 1 : 0
   bastion_type     = "STANDARD"
   compartment_id   = var.compartment_ocid
   target_subnet_id = var.magento_subnet_id
-  #target_subnet_id             = var.bastion_subnet_id
   client_cidr_block_allow_list = ["0.0.0.0/0"]
   name                         = "BastionService4magento"
   max_session_ttl_in_seconds   = 10800
@@ -415,7 +414,7 @@ resource "oci_bastion_bastion" "bastion-service" {
 resource "oci_bastion_session" "ssh_via_bastion_service" {
   depends_on = [oci_core_instance.magento]
   count      = var.numberOfNodes > 1 && var.use_bastion_service ? 1 : 0
-  bastion_id = oci_bastion_bastion.bastion-service[0].id
+  bastion_id = var.bastion_service_id == "" ? oci_bastion_bastion.bastion-service[0].id : var.bastion_service_id 
 
   key_details {
     public_key_content = tls_private_key.public_private_key_pair.public_key_openssh
@@ -534,7 +533,7 @@ resource "null_resource" "magento_provisioner_without_bastion" {
 }
 
 resource "null_resource" "magento_provisioner_with_bastion" {
-  count = var.numberOfNodes > 1 ? 1 : 0
+  count = (var.numberOfNodes > 1 && !var.inject_bastion_server_public_ip) ? 1 : 0
   depends_on = [oci_core_instance.magento,
     oci_core_network_security_group.magentoFSSSecurityGroup,
     oci_core_network_security_group_security_rule.magentoFSSSecurityIngressTCPGroupRules1,
@@ -580,6 +579,7 @@ resource "null_resource" "magento_provisioner_with_bastion" {
       bastion_host        = var.use_bastion_service ? "host.bastion.${var.bastion_service_region}.oci.oraclecloud.com" : oci_core_instance.bastion_instance[0].public_ip
       bastion_user        = var.use_bastion_service ? oci_bastion_session.ssh_via_bastion_service[0].id : var.vm_user
       bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+
     }
   }
 
@@ -644,6 +644,136 @@ resource "null_resource" "magento_provisioner_with_bastion" {
       private_key         = tls_private_key.public_private_key_pair.private_key_pem
       bastion_host        = var.use_bastion_service ? "host.bastion.${var.bastion_service_region}.oci.oraclecloud.com" : oci_core_instance.bastion_instance[0].public_ip
       bastion_user        = var.use_bastion_service ? oci_bastion_session.ssh_via_bastion_service[0].id : var.vm_user
+      bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+    }
+
+    inline = [
+      "chmod +x ${local.php_script}",
+      "sudo ${local.php_script}",
+      "chmod +x ${local.security_script}",
+      "sudo ${local.security_script}",
+      "chmod +x ${local.create_magento_db}",
+      "sudo ${local.create_magento_db}",
+      "chmod +x ${local.install_magento}",
+      "sudo ${local.install_magento}"
+    ]
+
+  }
+
+}
+
+resource "null_resource" "magento_provisioner_with_injected_bastion_server_public_ip" {
+  count = (var.numberOfNodes > 1 && var.inject_bastion_server_public_ip) ? 1 : 0
+  depends_on = [oci_core_instance.magento,
+    oci_core_network_security_group.magentoFSSSecurityGroup,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityIngressTCPGroupRules1,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityIngressTCPGroupRules2,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityIngressUDPGroupRules1,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityIngressUDPGroupRules2,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityEgressTCPGroupRules1,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityEgressTCPGroupRules2,
+    oci_core_network_security_group_security_rule.magentoFSSSecurityEgressUDPGroupRules1,
+    oci_file_storage_export.magentoExport,
+    oci_file_storage_file_system.magentoFilesystem,
+    oci_file_storage_export_set.magentoExportset,
+  oci_file_storage_mount_target.magentoMountTarget]
+
+  provisioner "file" {
+    content     = data.template_file.install_php.rendered
+    destination = local.php_script
+
+    connection {
+      type                = "ssh"
+      host                = data.oci_core_vnic.magento_vnic1.private_ip_address
+      agent               = false
+      timeout             = "5m"
+      user                = var.vm_user
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      bastion_host        = var.bastion_server_public_ip
+      bastion_user        = var.vm_user
+      bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+    }
+  }
+
+  provisioner "file" {
+    content     = data.template_file.configure_local_security.rendered
+    destination = local.security_script
+
+    connection {
+      type                = "ssh"
+      host                = data.oci_core_vnic.magento_vnic1.private_ip_address
+      agent               = false
+      timeout             = "5m"
+      user                = var.vm_user
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      bastion_host        = var.bastion_server_public_ip
+      bastion_user        = var.vm_user     
+      bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+
+    }
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/scripts/index.html"
+    destination = local.indexhtml
+
+    connection {
+      type                = "ssh"
+      host                = data.oci_core_vnic.magento_vnic1.private_ip_address
+      agent               = false
+      timeout             = "5m"
+      user                = var.vm_user
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      bastion_host        = var.bastion_server_public_ip
+      bastion_user        = var.vm_user
+      bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+    }
+  }
+
+  provisioner "file" {
+    content     = data.template_file.create_magento_db.rendered
+    destination = local.create_magento_db
+
+    connection {
+      type                = "ssh"
+      host                = data.oci_core_vnic.magento_vnic1.private_ip_address
+      agent               = false
+      timeout             = "5m"
+      user                = var.vm_user
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      bastion_host        = var.bastion_server_public_ip
+      bastion_user        = var.vm_user
+      bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+    }
+  }
+
+  provisioner "file" {
+    content     = data.template_file.install_magento.rendered
+    destination = local.install_magento
+
+    connection {
+      type                = "ssh"
+      host                = data.oci_core_vnic.magento_vnic1.private_ip_address
+      agent               = false
+      timeout             = "5m"
+      user                = var.vm_user
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      bastion_host        = var.bastion_server_public_ip
+      bastion_user        = var.vm_user
+      bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
+    }
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type                = "ssh"
+      host                = data.oci_core_vnic.magento_vnic1.private_ip_address
+      agent               = false
+      timeout             = "5m"
+      user                = var.vm_user
+      private_key         = tls_private_key.public_private_key_pair.private_key_pem
+      bastion_host        = var.bastion_server_public_ip
+      bastion_user        = var.vm_user
       bastion_private_key = tls_private_key.public_private_key_pair.private_key_pem
     }
 
@@ -727,7 +857,7 @@ resource "oci_core_instance" "magento_from_image" {
 resource "oci_bastion_session" "ssh_via_bastion_service2plus" {
   depends_on = [oci_core_instance.magento]
   count      = var.numberOfNodes > 1 && var.use_bastion_service ? var.numberOfNodes - 1 : 0
-  bastion_id = oci_bastion_bastion.bastion-service[0].id
+  bastion_id = var.bastion_service_id == "" ? oci_bastion_bastion.bastion-service[0].id : var.bastion_service_id 
 
   key_details {
     public_key_content = tls_private_key.public_private_key_pair.public_key_openssh
