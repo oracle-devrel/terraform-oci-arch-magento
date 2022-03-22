@@ -76,6 +76,10 @@ bastion_image_id | If use_bastion_service is set to FALSE then you can define Ba
 bastion_shape | If use_bastion_service is set to FALSE then you can define Bastion VM shape.
 bastion_flex_shape_ocpus | If use_bastion_service is set to FALSE and bastion_shape is using Flex shapes then you can define Flex Shape OCPUs.
 bastion_flex_shape_memory | If use_bastion_service is set to FALSE and bastion_shape is using Flex shapes then you can define Flex Shape Memory (GB).
+inject_bastion_service_id | Instead of counting on module to create Bastion Service you can pass Bastion Service OCID as input (set value to TRUE).
+bastion_service_id | If inject_bastion_service_id is set to TRUE then you can pass here Bastion Service OCID as input.
+inject_bastion_server_public_ip  | Instead of counting on module to create Bastion VM you can pass Bastion Host Public IP Address as input (set value to TRUE).
+bastion_server_public_ip | If inject_bastion_server_public_ip is set to TRUE then you can pass here Bastion Host Public IP Address.
 use_shared_storage | If numberOfNodes set to 2 or more then you can use shared NFS on OCI FSS (value TRUE). If you want to replicate Magento by yourself (for example with rsync) then you can you can set the value to FALSE.
 magento_shared_working_dir | If numberOfNodes set to 2 or more then you can define shared mountpoint name.
 label_prefix | To create unique identifier for multiple clusters in a compartment.
