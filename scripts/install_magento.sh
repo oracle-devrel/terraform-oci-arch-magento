@@ -2,6 +2,7 @@
 #set -x
 
 export use_shared_storage='${use_shared_storage}'
+export use_redis_cache='${use_redis_cache}'
 
 if [[ $use_shared_storage == "true" ]]; then
   echo "Mount NFS share: ${magento_shared_working_dir}"
@@ -69,6 +70,9 @@ if [[ $use_shared_storage == "true" ]]; then
   ${magento_shared_working_dir}/bin/magento config:set web/secure/base_url https://${public_ip}/
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_frontend 1
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_adminhtml 0
+  if [[ $use_redis_cache == "true" ]]; then
+      ${magento_shared_working_dir}/bin/magento config:set --page-cache=redis --page-cache-redis-server=${use_redis_cache} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
+  fi
   cp /home/opc/index.html ${magento_shared_working_dir}/index.html
   rm /home/opc/index.html
   chown apache:apache -R ${magento_shared_working_dir}
@@ -77,7 +81,10 @@ else
   /var/www/html/bin/magento config:set web/unsecure/base_url http://${public_ip}/
   /var/www/html/bin/magento config:set web/secure/base_url https://${public_ip}/
   /var/www/html/bin/magento config:set web/secure/use_in_frontend 1
-  /var/www/html/bin/magento config:set web/secure/use_in_adminhtml 0  
+  /var/www/html/bin/magento config:set web/secure/use_in_adminhtml 0 
+  if [[ $use_redis_cache == "true" ]]; then
+      /var/www/html/bin/magento config:set --page-cache=redis --page-cache-redis-server=${use_redis_cache} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
+  fi 
   chown apache:apache -R /var/www/html
 fi
 
