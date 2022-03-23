@@ -71,7 +71,7 @@ if [[ $use_shared_storage == "true" ]]; then
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_frontend 1
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_adminhtml 0
   if [[ $use_redis_cache == "true" ]]; then
-      ${magento_shared_working_dir}/bin/magento config:set --page-cache=redis --page-cache-redis-server=${use_redis_cache} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
+      ${magento_shared_working_dir}/bin/magento config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
   fi
   cp /home/opc/index.html ${magento_shared_working_dir}/index.html
   rm /home/opc/index.html
@@ -83,7 +83,7 @@ else
   /var/www/html/bin/magento config:set web/secure/use_in_frontend 1
   /var/www/html/bin/magento config:set web/secure/use_in_adminhtml 0 
   if [[ $use_redis_cache == "true" ]]; then
-      /var/www/html/bin/magento config:set --page-cache=redis --page-cache-redis-server=${use_redis_cache} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
+      /var/www/html/bin/magento config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
   fi 
   chown apache:apache -R /var/www/html
 fi
