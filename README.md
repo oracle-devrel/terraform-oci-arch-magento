@@ -93,6 +93,11 @@ magento_admin_password | Magento Admin Password.
 magento_admin_email | Magento Admin E-mail.
 admin_username | Admin User Name for MySQL Server.
 admin_password | Admin User Password for MySQL Server.
+use_redis_cache | Decide if you want to setup Redis Cache for Magento
+redis_ip_address | IP Address of Redis Server for Magento Cache.
+redis_port | Port of Redis Server for Magento Cache.
+redis_password | Password for Redis Server for Magento Cache.
+redis_database | Database in Redis Server for Magento Cache.
 mds_ip | Private IP of the MySQL Server.
 defined_tags | Defined tags to be added to compute instances.
 

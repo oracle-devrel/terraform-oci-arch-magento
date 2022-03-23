@@ -205,6 +205,26 @@ variable "numberOfNodes" {
     default = 1
 }
 
+variable "use_redis_cache" {
+    default = false
+}           
+
+variable "redis_ip_address" {
+    default = ""
+}           
+
+variable "redis_port" {
+    default = 6379
+}                 
+
+variable "redis_password" {
+    default = ""
+}
+
+variable "redis_database" {
+    default = 0
+}
+
 # Dictionary Locals
 locals {
   compute_flexible_shapes = [
