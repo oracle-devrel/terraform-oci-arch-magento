@@ -64,6 +64,8 @@ fi
 
 echo "Magento installed !"
 
+echo "Configuring Magento..."
+
 if [[ $use_shared_storage == "true" ]]; then
   ${magento_shared_working_dir}/bin/magento setup:install --no-ansi --db-host ${mds_ip}  --db-name ${magento_schema} --db-user ${magento_name} --db-password '${magento_password}' --admin-firstname='${magento_admin_firstname}' --admin-lastname='${magento_admin_lastname}' --admin-user='${magento_admin_login}' --admin-password='${magento_admin_password}' --admin-email='${magento_admin_email}'
   ${magento_shared_working_dir}/bin/magento config:set web/unsecure/base_url http://${public_ip}/
@@ -71,7 +73,8 @@ if [[ $use_shared_storage == "true" ]]; then
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_frontend 1
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_adminhtml 0
   if [[ $use_redis_cache == "true" ]]; then
-      ${magento_shared_working_dir}/bin/magento config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
+      ${magento_shared_working_dir}/bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server=${redis_ip_address} --cache-backend-redis-db=${redis_database} --cache-backend-redis-port=${redis_port} --cache-backend-redis-password=${redis_password} --no-interaction
+      ${magento_shared_working_dir}/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
   fi
   cp /home/opc/index.html ${magento_shared_working_dir}/index.html
   rm /home/opc/index.html
@@ -83,10 +86,13 @@ else
   /var/www/html/bin/magento config:set web/secure/use_in_frontend 1
   /var/www/html/bin/magento config:set web/secure/use_in_adminhtml 0 
   if [[ $use_redis_cache == "true" ]]; then
-      /var/www/html/bin/magento config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password}
+      /var/www/html/bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server=${redis_ip_address} --cache-backend-redis-db=${redis_database} --cache-backend-redis-port=${redis_port} --cache-backend-redis-password=${redis_password} --no-interaction
+      /var/www/html/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
   fi 
   chown apache:apache -R /var/www/html
 fi
+
+echo "Magento configured!"
 
 systemctl start httpd
 systemctl enable httpd

@@ -222,7 +222,7 @@ variable "redis_password" {
 }
 
 variable "redis_database" {
-    default = 0
+    default = 1
 }
 
 # Dictionary Locals
