@@ -188,6 +188,11 @@ variable "magento_admin_email" {
   description = "Magento Admin Email"
 }
 
+variable "magento_backend_frontname" {
+  description = "Magento Admin Backend Frontname"
+  default     = "magento_admin"
+}
+
 variable "mds_ip" {
     description = "Private IP of the MDS Instance"
 }
@@ -207,7 +212,15 @@ variable "numberOfNodes" {
 
 variable "use_redis_cache" {
     default = false
-}           
+}  
+
+variable "use_redis_as_cache_backend" {
+    default = true
+}          
+
+variable "use_redis_as_page_cache" {
+    default = true
+}    
 
 variable "redis_ip_address" {
     default = ""

@@ -3,6 +3,8 @@
 
 export use_shared_storage='${use_shared_storage}'
 export use_redis_cache='${use_redis_cache}'
+export use_redis_as_cache_backend='${use_redis_as_cache_backend}'
+export use_redis_as_page_cache='${use_redis_as_page_cache}'
 
 if [[ $use_shared_storage == "true" ]]; then
   echo "Mount NFS share: ${magento_shared_working_dir}"
@@ -72,9 +74,14 @@ if [[ $use_shared_storage == "true" ]]; then
   ${magento_shared_working_dir}/bin/magento config:set web/secure/base_url https://${public_ip}/
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_frontend 1
   ${magento_shared_working_dir}/bin/magento config:set web/secure/use_in_adminhtml 0
+  ${magento_shared_working_dir}/bin/magento setup:config:set --backend-frontname="${magento_backend_frontname}" --no-interaction  
   if [[ $use_redis_cache == "true" ]]; then
-      ${magento_shared_working_dir}/bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server=${redis_ip_address} --cache-backend-redis-db=${redis_database} --cache-backend-redis-port=${redis_port} --cache-backend-redis-password=${redis_password} --no-interaction
-      ${magento_shared_working_dir}/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
+      if [[ $use_redis_as_cache_backend == "true" ]]; then
+          ${magento_shared_working_dir}/bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server=${redis_ip_address} --cache-backend-redis-db=${redis_database} --cache-backend-redis-port=${redis_port} --cache-backend-redis-password=${redis_password} --no-interaction
+      fi
+      if [[ $use_redis_as_page_cache == "true" ]]; then
+          ${magento_shared_working_dir}/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
+      fi
   fi
   cp /home/opc/index.html ${magento_shared_working_dir}/index.html
   rm /home/opc/index.html
@@ -85,9 +92,15 @@ else
   /var/www/html/bin/magento config:set web/secure/base_url https://${public_ip}/
   /var/www/html/bin/magento config:set web/secure/use_in_frontend 1
   /var/www/html/bin/magento config:set web/secure/use_in_adminhtml 0 
+  /var/www/html/bin/magento setup:config:set --backend-frontname="${magento_backend_frontname}" --no-interaction
+  
   if [[ $use_redis_cache == "true" ]]; then
-      /var/www/html/bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server=${redis_ip_address} --cache-backend-redis-db=${redis_database} --cache-backend-redis-port=${redis_port} --cache-backend-redis-password=${redis_password} --no-interaction
-      /var/www/html/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
+      if [[ $use_redis_as_cache_backend == "true" ]]; then
+          /var/www/html/bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server=${redis_ip_address} --cache-backend-redis-db=${redis_database} --cache-backend-redis-port=${redis_port} --cache-backend-redis-password=${redis_password} --no-interaction
+      fi  
+      if [[ $use_redis_as_page_cache == "true" ]]; then
+          /var/www/html/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
+      fi
   fi 
   chown apache:apache -R /var/www/html
 fi

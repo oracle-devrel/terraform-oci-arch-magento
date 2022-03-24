@@ -363,11 +363,14 @@ data "template_file" "install_magento" {
     magento_admin_firstname    = var.magento_admin_firstname
     magento_admin_lastname     = var.magento_admin_lastname
     magento_admin_email        = var.magento_admin_email
+    magento_backend_frontname  = var.magento_backend_frontname
     use_redis_cache            = var.use_redis_cache
+    use_redis_as_cache_backend = var.use_redis_as_cache_backend
+    use_redis_as_page_cache    = var.use_redis_as_page_cache 
     redis_ip_address           = var.redis_ip_address
     redis_port                 = var.redis_port
     redis_password             = var.redis_password
-    redis_database             = var.redis_database
+    redis_database             = var.redis_database   
   }
 }
 
