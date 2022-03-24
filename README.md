@@ -91,9 +91,12 @@ magento_admin_lastname | Magento Admin Last Name.
 magento_admin_login | Magento Admin Login.
 magento_admin_password | Magento Admin Password.
 magento_admin_email | Magento Admin E-mail.
+magento_backend_frontname | Magento Admin Console/Backend Frontname.
 admin_username | Admin User Name for MySQL Server.
 admin_password | Admin User Password for MySQL Server.
-use_redis_cache | Decide if you want to setup Redis Cache for Magento
+use_redis_cache | Decide if you want to setup Redis Cache for Magento.
+use_redis_as_cache_backend | Decide if you want to use Redis as default backend cache.
+use_redis_as_page_cache | Decide if you want to use Redis as to cache web pages.
 redis_ip_address | IP Address of Redis Server for Magento Cache.
 redis_port | Port of Redis Server for Magento Cache.
 redis_password | Password for Redis Server for Magento Cache.
