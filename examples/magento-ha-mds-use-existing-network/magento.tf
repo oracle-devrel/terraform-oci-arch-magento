@@ -1,7 +1,7 @@
 ## Copyright (c) 2022, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-module "magento" {
+module "oci-arch-magento" {
   source                    = "github.com/oracle-devrel/terraform-oci-arch-magento"
   tenancy_ocid              = var.tenancy_ocid
   vcn_id                    = oci_core_virtual_network.magento_mds_vcn.id
@@ -13,7 +13,7 @@ module "magento" {
   label_prefix              = var.label_prefix
   ssh_authorized_keys       = var.ssh_public_key
   mds_ip                    = module.mds-instance.mysql_db_system.ip_address
-  magento_subnet_id          = oci_core_subnet.magento_subnet.id
+  magento_subnet_id         = oci_core_subnet.magento_subnet.id
   lb_subnet_id              = oci_core_subnet.lb_subnet_public.id 
   bastion_subnet_id         = oci_core_subnet.bastion_subnet_public.id 
   fss_subnet_id             = oci_core_subnet.fss_subnet_private.id 

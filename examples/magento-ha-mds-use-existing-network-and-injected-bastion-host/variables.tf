@@ -208,6 +208,11 @@ variable "magento_admin_login" {
   default = "admin"
 }
 
+variable "magento_backend_frontname" {
+  description = "Magento Admin Backend Frontname"
+  default     = "magento_admin"
+}
+
 # Dictionary Locals
 locals {
   compute_flexible_shapes = [

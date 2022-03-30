@@ -1,9 +1,8 @@
 ## Copyright (c) 2022, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-module "magento" {
+module "oci-arch-magento" {
   source                          = "github.com/oracle-devrel/terraform-oci-arch-magento"
-  source                          = "../../"
   tenancy_ocid                    = var.tenancy_ocid
   vcn_id                          = oci_core_virtual_network.magento_mds_vcn.id
   numberOfNodes                   = 2
