@@ -26,7 +26,7 @@ resource "oci_core_instance" "bastion" {
   }
 
   metadata = {
-    ssh_authorized_keys = module.magento.generated_ssh_public_key
+    ssh_authorized_keys = module.oci-arch-magento.generated_ssh_public_key
   }
 
 }

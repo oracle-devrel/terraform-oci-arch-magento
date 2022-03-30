@@ -207,3 +207,8 @@ variable "magento_admin_login" {
   description = "Magento Admin Login"
   default = "admin"
 }
+
+variable "magento_backend_frontname" {
+  description = "Magento Admin Backend Frontname"
+  default     = "magento_admin"
+}
