@@ -21,8 +21,13 @@ else
   cd /var/www/html	
 fi
 
-magento_version=$(curl -s https://github.com/magento/magento2/releases/latest | grep -Po 'tag/\K.*' | cut -d'"' -f1)
-wget https://github.com/magento/magento2/archive/$magento_version.tar.gz
+export magento_version='${magento_version}'
+if [[ $magento_version == "latest" ]]; then
+  magento_version=$(curl -s https://github.com/magento/magento2/releases/latest | grep -Po 'tag/\K.*' | cut -d'"' -f1)
+  wget https://github.com/magento/magento2/archive/$magento_version.tar.gz
+else
+  wget https://github.com/magento/magento2/archive/refs/tags/$magento_version.tar.gz
+fi  
 
 if [[ $use_shared_storage == "true" ]]; then
   tar zxvf $magento_version.tar.gz --directory ${magento_shared_working_dir}
@@ -69,6 +74,7 @@ echo "Magento installed !"
 echo "Configuring Magento..."
 
 if [[ $use_shared_storage == "true" ]]; then
+  #${magento_shared_working_dir}/bin/magento module:disable {Magento_Elasticsearch,Magento_Elasticsearch6,Magento_Elasticsearch7}
   ${magento_shared_working_dir}/bin/magento setup:install --no-ansi --db-host ${mds_ip}  --db-name ${magento_schema} --db-user ${magento_name} --db-password '${magento_password}' --admin-firstname='${magento_admin_firstname}' --admin-lastname='${magento_admin_lastname}' --admin-user='${magento_admin_login}' --admin-password='${magento_admin_password}' --admin-email='${magento_admin_email}'
   ${magento_shared_working_dir}/bin/magento config:set web/unsecure/base_url http://${public_ip}/
   ${magento_shared_working_dir}/bin/magento config:set web/secure/base_url https://${public_ip}/
@@ -87,6 +93,7 @@ if [[ $use_shared_storage == "true" ]]; then
   rm /home/opc/index.html
   chown apache:apache -R ${magento_shared_working_dir}
 else 
+  #/var/www/html/bin/magento module:disable {Magento_Elasticsearch,Magento_Elasticsearch6,Magento_Elasticsearch7}
   /var/www/html/bin/magento setup:install --no-ansi --db-host ${mds_ip}  --db-name ${magento_schema} --db-user ${magento_name} --db-password '${magento_password}' --admin-firstname='${magento_admin_firstname}' --admin-lastname='${magento_admin_lastname}' --admin-user='${magento_admin_login}' --admin-password='${magento_admin_password}' --admin-email='${magento_admin_email}'
   /var/www/html/bin/magento config:set web/unsecure/base_url http://${public_ip}/
   /var/www/html/bin/magento config:set web/secure/base_url https://${public_ip}/

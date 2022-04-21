@@ -363,6 +363,7 @@ data "template_file" "install_magento" {
     magento_admin_firstname    = var.magento_admin_firstname
     magento_admin_lastname     = var.magento_admin_lastname
     magento_admin_email        = var.magento_admin_email
+    magento_version            = var.magento_version
     magento_backend_frontname  = var.magento_backend_frontname
     use_redis_cache            = var.use_redis_cache
     use_redis_as_cache_backend = var.use_redis_as_cache_backend
