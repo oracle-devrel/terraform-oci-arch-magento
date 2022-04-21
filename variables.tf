@@ -160,6 +160,10 @@ variable "magento_password" {
   description = "Magento Database User Password."
 }
 
+variable "magento_version" {
+  default = "2.3.7-p3"
+}
+
 variable "magento_schema" {
   description = "Magento MySQL Schema"
 }

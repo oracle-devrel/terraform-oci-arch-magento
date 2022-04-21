@@ -83,6 +83,7 @@ bastion_server_public_ip | If inject_bastion_server_public_ip is set to TRUE the
 use_shared_storage | If numberOfNodes set to 2 or more then you can use shared NFS on OCI FSS (value TRUE). If you want to replicate Magento by yourself (for example with rsync) then you can you can set the value to FALSE.
 magento_shared_working_dir | If numberOfNodes set to 2 or more then you can define shared mountpoint name.
 label_prefix | To create unique identifier for multiple clusters in a compartment.
+magento_version | Magento version (by default 2.3.7-p3)
 magento_name | Magento Database User Name for MySQL Server.
 magento_schema | Magento Database User Schema for MySQL Server.
 magento_password | Magento Database User Password for MySQL Server.
