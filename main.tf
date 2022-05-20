@@ -368,6 +368,7 @@ data "template_file" "install_magento" {
     use_redis_cache            = var.use_redis_cache
     use_redis_as_cache_backend = var.use_redis_as_cache_backend
     use_redis_as_page_cache    = var.use_redis_as_page_cache 
+    install_sample_data        = var.install_sample_data
     redis_ip_address           = var.redis_ip_address
     redis_port                 = var.redis_port
     redis_password             = var.redis_password
@@ -420,6 +421,26 @@ resource "oci_bastion_bastion" "bastion-service" {
   max_session_ttl_in_seconds   = 10800
 }
 
+data "oci_computeinstanceagent_instance_agent_plugins" "magento_agent_plugin_bastion" {
+  count            = var.numberOfNodes > 1 && var.use_bastion_service ? 1 : 0
+  compartment_id   = var.compartment_ocid
+  instanceagent_id = oci_core_instance.magento.id
+  name             = "Bastion"
+  status           = "RUNNING"
+}
+
+resource "time_sleep" "magento_agent_checker" {
+  depends_on      = [oci_core_instance.magento]
+  count           = var.numberOfNodes > 1 && var.use_bastion_service ? 1 : 0
+  create_duration = "60s"
+
+  triggers = {
+    changed_time_stamp = length(data.oci_computeinstanceagent_instance_agent_plugins.magento_agent_plugin_bastion) != 0 ? 0 : timestamp()
+    instance_ocid  = oci_core_instance.magento.id
+    private_ip     = oci_core_instance.magento.private_ip
+  }
+}
+
 resource "oci_bastion_session" "ssh_via_bastion_service" {
   depends_on = [oci_core_instance.magento]
   count      = var.numberOfNodes > 1 && var.use_bastion_service ? 1 : 0
@@ -431,10 +452,10 @@ resource "oci_bastion_session" "ssh_via_bastion_service" {
 
   target_resource_details {
     session_type                               = "MANAGED_SSH"
-    target_resource_id                         = oci_core_instance.magento.id
+    target_resource_id                         = time_sleep.magento_agent_checker[count.index].triggers["instance_ocid"]
     target_resource_operating_system_user_name = "opc"
     target_resource_port                       = 22
-    target_resource_private_ip_address         = oci_core_instance.magento.private_ip
+    target_resource_private_ip_address         = time_sleep.magento_agent_checker[count.index].triggers["private_ip"]
   }
 
   display_name           = "ssh_via_bastion_service_to_magento1"
@@ -805,7 +826,7 @@ resource "null_resource" "magento_provisioner_with_injected_bastion_server_publi
 
 resource "oci_core_image" "magento_instance_image" {
   count          = var.numberOfNodes > 1 ? 1 : 0
-  depends_on     = [null_resource.magento_provisioner_with_bastion]
+  depends_on     = [null_resource.magento_provisioner_with_bastion, null_resource.magento_provisioner_with_injected_bastion_server_public_ip]
   compartment_id = var.compartment_ocid
   instance_id    = oci_core_instance.magento.id
   display_name   = "magento_instance_image"
@@ -863,6 +884,26 @@ resource "oci_core_instance" "magento_from_image" {
   }
 }
 
+data "oci_computeinstanceagent_instance_agent_plugins" "magento2plus_agent_plugin_bastion" {
+  count            = var.numberOfNodes > 1 && var.use_bastion_service ? var.numberOfNodes - 1 : 0
+  compartment_id   = var.compartment_ocid
+  instanceagent_id = oci_core_instance.magento_from_image[count.index].id
+  name             = "Bastion"
+  status           = "RUNNING"
+}
+
+resource "time_sleep" "magento2plus_agent_checker" {
+  depends_on      = [oci_core_instance.magento_from_image]
+  count           = var.numberOfNodes > 1 && var.use_bastion_service ? var.numberOfNodes - 1 : 0
+  create_duration = "60s"
+
+  triggers = {
+    changed_time_stamp = length(data.oci_computeinstanceagent_instance_agent_plugins.magento2plus_agent_plugin_bastion) != 0 ? 0 : timestamp()
+    instance_ocid  = oci_core_instance.magento_from_image[count.index].id
+    private_ip     = oci_core_instance.magento_from_image[count.index].private_ip
+  }
+}
+
 resource "oci_bastion_session" "ssh_via_bastion_service2plus" {
   depends_on = [oci_core_instance.magento]
   count      = var.numberOfNodes > 1 && var.use_bastion_service ? var.numberOfNodes - 1 : 0
@@ -874,10 +915,10 @@ resource "oci_bastion_session" "ssh_via_bastion_service2plus" {
 
   target_resource_details {
     session_type                               = "MANAGED_SSH"
-    target_resource_id                         = oci_core_instance.magento_from_image[count.index].id
+    target_resource_id                         = time_sleep.magento2plus_agent_checker[count.index].triggers["instance_ocid"]
     target_resource_operating_system_user_name = "opc"
     target_resource_port                       = 22
-    target_resource_private_ip_address         = oci_core_instance.magento_from_image[count.index].private_ip
+    target_resource_private_ip_address         = time_sleep.magento2plus_agent_checker[count.index].triggers["private_ip"]
   }
 
   display_name           = "ssh_via_bastion_service_to_magento${count.index + 2}"
