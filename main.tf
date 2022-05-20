@@ -350,29 +350,31 @@ data "template_file" "install_magento" {
   template = file("${path.module}/scripts/install_magento.sh")
 
   vars = {
-    magento_name               = var.magento_name
-    magento_password           = var.magento_password
-    magento_schema             = var.magento_schema
-    mds_ip                     = var.mds_ip
-    use_shared_storage         = var.numberOfNodes > 1 ? tostring(true) : tostring(false)
-    magento_shared_working_dir = var.magento_shared_working_dir
-    mt_ip_address              = local.mt_ip_address
-    public_ip                  = var.numberOfNodes > 1 ? oci_core_public_ip.magento_public_ip_for_multi_node[0].ip_address : oci_core_public_ip.magento_public_ip_for_single_node[0].ip_address
-    magento_admin_login        = var.magento_admin_login
-    magento_admin_password     = var.magento_admin_password
-    magento_admin_firstname    = var.magento_admin_firstname
-    magento_admin_lastname     = var.magento_admin_lastname
-    magento_admin_email        = var.magento_admin_email
-    magento_version            = var.magento_version
-    magento_backend_frontname  = var.magento_backend_frontname
-    use_redis_cache            = var.use_redis_cache
-    use_redis_as_cache_backend = var.use_redis_as_cache_backend
-    use_redis_as_page_cache    = var.use_redis_as_page_cache 
-    install_sample_data        = var.install_sample_data
-    redis_ip_address           = var.redis_ip_address
-    redis_port                 = var.redis_port
-    redis_password             = var.redis_password
-    redis_database             = var.redis_database   
+    magento_name                 = var.magento_name
+    magento_password             = var.magento_password
+    magento_schema               = var.magento_schema
+    mds_ip                       = var.mds_ip
+    use_shared_storage           = var.numberOfNodes > 1 ? tostring(true) : tostring(false)
+    magento_shared_working_dir   = var.magento_shared_working_dir
+    mt_ip_address                = local.mt_ip_address
+    public_ip                    = var.numberOfNodes > 1 ? oci_core_public_ip.magento_public_ip_for_multi_node[0].ip_address : oci_core_public_ip.magento_public_ip_for_single_node[0].ip_address
+    magento_admin_login          = var.magento_admin_login
+    magento_admin_password       = var.magento_admin_password
+    magento_admin_firstname      = var.magento_admin_firstname
+    magento_admin_lastname       = var.magento_admin_lastname
+    magento_admin_email          = var.magento_admin_email
+    magento_version              = var.magento_version
+    magento_backend_frontname    = var.magento_backend_frontname
+    use_redis_cache              = var.use_redis_cache
+    use_redis_as_cache_backend   = var.use_redis_as_cache_backend
+    use_redis_as_page_cache      = var.use_redis_as_page_cache 
+    use_redis_as_session_storage = var.use_redis_as_session_storage
+    redis_log_level              = var.redis_log_level
+    install_sample_data          = var.install_sample_data
+    redis_ip_address             = var.redis_ip_address
+    redis_port                   = var.redis_port
+    redis_password               = var.redis_password
+    redis_database               = var.redis_database   
   }
 }
 

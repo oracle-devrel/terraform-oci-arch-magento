@@ -98,6 +98,8 @@ admin_password | Admin User Password for MySQL Server.
 use_redis_cache | Decide if you want to setup Redis Cache for Magento.
 use_redis_as_cache_backend | Decide if you want to use Redis as default backend cache.
 use_redis_as_page_cache | Decide if you want to use Redis as to cache web pages.
+use_redis_as_session_storage | Decide if you want to use Redis to store sessions.
+redis_log_level | Define redis_log_level for sessions storage (by default 4).
 redis_ip_address | IP Address of Redis Server for Magento Cache.
 redis_port | Port of Redis Server for Magento Cache.
 redis_password | Password for Redis Server for Magento Cache.
