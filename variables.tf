@@ -226,6 +226,13 @@ variable "use_redis_as_page_cache" {
     default = true
 }    
 
+variable "use_redis_as_session_storage" {
+    default = true
+}     
+variable "redis_log_level" {
+    default = 4
+}              
+
 variable "install_sample_data" {
     default = false
 }

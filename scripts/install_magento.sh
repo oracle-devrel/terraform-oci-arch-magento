@@ -5,6 +5,7 @@ export use_shared_storage='${use_shared_storage}'
 export use_redis_cache='${use_redis_cache}'
 export use_redis_as_cache_backend='${use_redis_as_cache_backend}'
 export use_redis_as_page_cache='${use_redis_as_page_cache}'
+export use_redis_as_session_storage='${use_redis_as_session_storage}'
 export install_sample_data='${install_sample_data}'
 
 if [[ $use_shared_storage == "true" ]]; then
@@ -98,6 +99,9 @@ if [[ $use_shared_storage == "true" ]]; then
       if [[ $use_redis_as_page_cache == "true" ]]; then
           ${magento_shared_working_dir}/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
       fi
+      if [[ $use_redis_as_session_storage == "true" ]]; then
+          ${magento_shared_working_dir}/bin/magento setup:config:set --session-save=redis --session-save-redis-host=${redis_ip_address} --session-save-redis-port=${redis_port} --session-save-redis-password=${redis_password} --session-save-redis-log-level=${redis_log_level} --session-save-redis-db=${redis_database} --no-interaction 
+      fi
   else
       sed -i "s/'save' => 'files'/'save' => 'files', 'save_path' => '\${magento_shared_working_dir}\/var\/session\/'/g" ${magento_shared_working_dir}/app/etc/env.php
   fi
@@ -124,6 +128,9 @@ else
       fi  
       if [[ $use_redis_as_page_cache == "true" ]]; then
           /var/www/html/bin/magento setup:config:set --page-cache=redis --page-cache-redis-server=${redis_ip_address} --page-cache-redis-db=${redis_database} --page-cache-redis-port=${redis_port} --page-cache-redis-password=${redis_password} --no-interaction 
+      fi
+      if [[ $use_redis_as_session_storage == "true" ]]; then
+          /var/www/html/bin/magento setup:config:set --session-save=redis --session-save-redis-host=${redis_ip_address} --session-save-redis-port=${redis_port} --session-save-redis-password=${redis_password} --session-save-redis-log-level=${redis_log_level} --session-save-redis-db=${redis_database} --no-interaction 
       fi
   fi 
   if [[ $install_sample_data == "true" ]]; then
