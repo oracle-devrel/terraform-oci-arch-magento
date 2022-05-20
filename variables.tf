@@ -60,7 +60,7 @@ variable "flex_shape_ocpus" {
 
 variable "flex_shape_memory" {
   description = "Flex Instance shape Memory (GB)"
-  default = 6
+  default = 10
 }
 
 variable "lb_shape" {
@@ -225,6 +225,10 @@ variable "use_redis_as_cache_backend" {
 variable "use_redis_as_page_cache" {
     default = true
 }    
+
+variable "install_sample_data" {
+    default = false
+}
 
 variable "redis_ip_address" {
     default = ""
